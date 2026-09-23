@@ -3848,7 +3848,10 @@ class NewtonPipeline:
                 if frame > (len(self.input_targets[env])-1):
                     continue
 
-                joint_q_data[env][frame] = data[env]
+                # Copy: on CPU, wp.array.numpy() is a zero-copy view of a buffer
+                # the solver reuses every frame, so storing the view makes every
+                # frame alias the last one. (On CUDA .numpy() already copies.)
+                joint_q_data[env][frame] = np.array(data[env], copy=True)
                 if frame <= num_frames_to_remove:
                     self.last_internal_trace["warmup_qpos_by_env"][env].append({
                         "internal_frame": int(frame),

@@ -68,7 +68,11 @@ class FeetStabilizer:
         self.num_envs = num_envs
         self.model = self._build_model(num_envs)
         self.state = self.model.state()
-        self.joint_q = wp.array(self.model.joint_q, shape=(self.num_envs, self.ik_model.joint_coord_count))
+        # A VIEW of model.joint_q, not a copy: reset_state() writes self.joint_q
+        # and then runs eval_fk on model.joint_q, so the two must share memory.
+        # wp.array(<wp.array>, shape=...) copies on CPU, which left the FK state
+        # frozen at the first frame and pinned the root in place.
+        self.joint_q = self.model.joint_q.reshape((self.num_envs, self.ik_model.joint_coord_count))
         self.out_effectors = wp.empty(shape=[self.num_envs, self.num_effectors], dtype=wp.transform)
         self.reset_state()
         self._create_objectives_and_solver()
