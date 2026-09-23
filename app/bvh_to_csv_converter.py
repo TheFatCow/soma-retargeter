@@ -21,6 +21,7 @@ import soma_retargeter.utils.math_utils as math_utils
 import soma_retargeter.assets.bvh as bvh_utils
 import soma_retargeter.assets.csv as csv_utils
 import soma_retargeter.assets.ai_sapiens as ai_sapiens_assets
+import soma_retargeter.assets.hugo as hugo_assets
 import soma_retargeter.assets.kimodo_npz as kimodo_npz_utils
 import soma_retargeter.assets.motion_input as motion_input_utils
 import soma_retargeter.assets.smplx_motion as smplx_motion_utils
@@ -248,7 +249,7 @@ class Viewer:
         self.playback_total_time = 0.0
 
         self.retarget_source_options = ['soma']
-        self.retarget_target_options = ['unitree_g1', 'ai_sapiens']
+        self.retarget_target_options = ['unitree_g1', 'ai_sapiens', 'hugo']
         self.retarget_solver_options = ['Newton']
         self.retarget_solver_idx     = 0
         self.retarget_target_idx     = 0
@@ -273,6 +274,8 @@ class Viewer:
         elif _is_ai_sapiens_target(self.retarget_target_options[self.retarget_target_idx]):
             target_builder.add_mjcf(
                 ai_sapiens_assets.resolve_ai_sapiens_mjcf_path(self.config.get("ai_sapiens_mjcf")))
+        elif self.retarget_target_options[self.retarget_target_idx] == "hugo":
+            target_builder.add_mjcf(hugo_assets.resolve_hugo_mjcf_path(self.config.get("hugo_mjcf")))
         else:
             raise ValueError(f"[ERROR]: Unknown retarget target [{self.retarget_target_options[self.retarget_target_idx]}].")
         

@@ -5,6 +5,7 @@ import warp as wp
 
 import newton
 import soma_retargeter.assets.ai_sapiens as ai_sapiens_assets
+import soma_retargeter.assets.hugo as hugo_assets
 import soma_retargeter.utils.newton_utils as newton_utils
 import soma_retargeter.animation.ik as ik_utils
 import soma_retargeter.utils.io_utils as io_utils
@@ -29,11 +30,13 @@ class FeetStabilizer:
         """
         self._load_config(config)
 
-        if self.robot_type == 'unitree_g1' or self.robot_type == 'ai_sapiens':
+        if self.robot_type in ('unitree_g1', 'ai_sapiens', 'hugo'):
             self.robot_builder = newton.ModelBuilder()
             if self.robot_type == 'unitree_g1':
                 self.robot_builder.add_mjcf(
                     newton.utils.download_asset("unitree_g1") / "mjcf/g1_29dof_rev_1_0.xml")
+            elif self.robot_type == 'hugo':
+                self.robot_builder.add_mjcf(hugo_assets.resolve_hugo_mjcf_path(self.robot_mjcf))
             else:
                 self.robot_builder.add_mjcf(ai_sapiens_assets.resolve_ai_sapiens_mjcf_path(self.robot_mjcf))
 

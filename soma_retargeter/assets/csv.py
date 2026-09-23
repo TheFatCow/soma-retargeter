@@ -11,6 +11,7 @@ import warp as wp
 from scipy.spatial.transform import Rotation as R
 from soma_retargeter.robotics.csv_animation_buffer import CSVAnimationBuffer
 from soma_retargeter.assets.ai_sapiens import AI_SAPIENS_JOINT_NAMES
+from soma_retargeter.assets.hugo import HUGO_JOINT_NAMES
 
 
 class RobotCSVConfig(Protocol):
@@ -121,12 +122,30 @@ class AISapiens23DOF_CSVConfig:
         return row
 
 
+@dataclass
+class Hugo19DOF_CSVConfig(AISapiens23DOF_CSVConfig):
+    """Hugo's 19 actuated hinges, in the MJCF order Newton assigns (HUGO_JOINT_NAMES).
+
+    Same units and root layout as the other targets: root translation in cm,
+    root rotation as xyz Euler degrees, joints in degrees.
+    """
+    name: str = "hugo_19dof"
+    csv_header: ClassVar[List[str]] = [
+        "Frame",
+        "root_translateX", "root_translateY", "root_translateZ",
+        "root_rotateX", "root_rotateY", "root_rotateZ",
+        *[f"{joint_name}_dof" for joint_name in HUGO_JOINT_NAMES],
+    ]
+
+
 def get_csv_config_for_target(target: str) -> RobotCSVConfig:
     """Select the CSV layout for a soma-retargeter target string."""
     if target == "unitree_g1":
         return UnitreeG129DOF_CSVConfig()
     if target == "ai_sapiens":
         return AISapiens23DOF_CSVConfig()
+    if target == "hugo":
+        return Hugo19DOF_CSVConfig()
     raise ValueError(f"[ERROR]: No CSV config registered for target [{target}].")
 
 

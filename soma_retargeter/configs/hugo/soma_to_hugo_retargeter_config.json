@@ -1,0 +1,119 @@
+{
+    "_note": "Hugo target. ik_map weights start from G1's; the hand rotation weight is cut because Hugo has no wrist, so the SOMA hand orientation is mostly unreachable. The bodies MUST match BODY_MAP in tools/calibrate_hugo_retarget.py. IKSmoothJointFilter is a SOFT JOINT-LIMIT penalty despite its name; G1 masks it onto shoulder roll at 1.0, but Hugo's elbow-forward reference sits within ~5 deg of its shoulder roll/yaw limits, and at 1.0 it dragged the arm ~20 deg off a pose whose targets were met exactly. Masked to 0.1 on all shoulder links.",
+    "initialization_pose": "soma/soma_zero_frame0.bvh",
+    "num_initialization_frames": 10,
+    "num_stabilization_frames": 5,
+    "robot_mjcf": "hugo/hugo_retarget.xml",
+    "human_robot_scaler_config": "hugo/soma_to_hugo_scaler_config.json",
+    "feet_stabilizer_config": "hugo/hugo_feet_stabilizer_config.json",
+    "model_height": 1.8,
+    "ik_iterations": 24,
+    "joint_limit_weight": 10.0,
+    "smooth_joint_filter_weight": 5.5,
+    "collision_weight": 0.0,
+    "enable_post_processing": true,
+    "smooth_joint_filter_objective_body_masks": {
+        "left_shoulder_pitch_link": 0.1,
+        "left_shoulder_roll_link": 0.1,
+        "left_shoulder_yaw_link": 0.1,
+        "right_shoulder_pitch_link": 0.1,
+        "right_shoulder_roll_link": 0.1,
+        "right_shoulder_yaw_link": 0.1
+    },
+    "ik_map": {
+        "Hips": {
+            "t_body": "waist_yaw_link",
+            "r_body": "waist_yaw_link",
+            "t_weight": 30.0,
+            "r_weight": 2.0
+        },
+        "Chest": {
+            "t_body": "torso",
+            "r_body": "torso",
+            "t_weight": 0.7,
+            "r_weight": 0.7
+        },
+        "LeftArm": {
+            "t_body": "left_shoulder_roll_link",
+            "r_body": "left_shoulder_roll_link",
+            "t_weight": 1.5,
+            "r_weight": 0.15
+        },
+        "LeftForeArm": {
+            "t_body": "left_elbow_link",
+            "r_body": "left_elbow_link",
+            "t_weight": 1.0,
+            "r_weight": 1.0
+        },
+        "LeftHand": {
+            "t_body": "left_hand_tcp",
+            "r_body": "left_hand_tcp",
+            "t_weight": 2.0,
+            "r_weight": 0.2
+        },
+        "RightArm": {
+            "t_body": "right_shoulder_roll_link",
+            "r_body": "right_shoulder_roll_link",
+            "t_weight": 1.5,
+            "r_weight": 0.15
+        },
+        "RightForeArm": {
+            "t_body": "right_elbow_link",
+            "r_body": "right_elbow_link",
+            "t_weight": 1.0,
+            "r_weight": 1.0
+        },
+        "RightHand": {
+            "t_body": "right_hand_tcp",
+            "r_body": "right_hand_tcp",
+            "t_weight": 2.0,
+            "r_weight": 0.2
+        },
+        "LeftLeg": {
+            "t_body": "left_hip_roll_link",
+            "r_body": "left_hip_roll_link",
+            "t_weight": 1.5,
+            "r_weight": 0.15
+        },
+        "LeftShin": {
+            "t_body": "left_knee_link",
+            "r_body": "left_knee_link",
+            "t_weight": 1.0,
+            "r_weight": 1.0
+        },
+        "LeftFoot": {
+            "t_body": "left_ankle_link",
+            "r_body": "left_ankle_link",
+            "t_weight": 30.0,
+            "r_weight": 2.0
+        },
+        "RightLeg": {
+            "t_body": "right_hip_roll_link",
+            "r_body": "right_hip_roll_link",
+            "t_weight": 1.5,
+            "r_weight": 0.15
+        },
+        "RightShin": {
+            "t_body": "right_knee_link",
+            "r_body": "right_knee_link",
+            "t_weight": 1.0,
+            "r_weight": 1.0
+        },
+        "RightFoot": {
+            "t_body": "right_ankle_link",
+            "r_body": "right_ankle_link",
+            "t_weight": 30.0,
+            "r_weight": 2.0
+        }
+    },
+    "initial_joint_q": {
+        "left_shoulder_pitch": 0.227897,
+        "left_shoulder_roll": 0.293658,
+        "left_shoulder_yaw": 1.553347,
+        "left_elbow": 1.054887,
+        "right_shoulder_pitch": -0.227897,
+        "right_shoulder_roll": -0.295257,
+        "right_shoulder_yaw": -1.553347,
+        "right_elbow": -1.053289
+    }
+}

@@ -10,6 +10,7 @@ from tqdm import trange
 
 import soma_retargeter.assets.bvh as bvh_utils
 import soma_retargeter.assets.ai_sapiens as ai_sapiens_assets
+import soma_retargeter.assets.hugo as hugo_assets
 import soma_retargeter.utils.newton_utils as newton_utils
 import soma_retargeter.utils.io_utils as io_utils
 import soma_retargeter.pipelines.utils as pipeline_utils
@@ -1335,14 +1336,20 @@ class NewtonPipeline:
         if (
             self.target_type == pipeline_utils.TargetType.UNITREE_G1
             or self.target_type == pipeline_utils.TargetType.AI_SAPIENS
+            or self.target_type == pipeline_utils.TargetType.HUGO
         ):
             self.robot_builder = newton.ModelBuilder()
             if self.target_type == pipeline_utils.TargetType.UNITREE_G1:
                 self.robot_builder.add_mjcf(
                     newton.utils.download_asset("unitree_g1") / "mjcf/g1_29dof_rev_1_0.xml")
+            elif self.target_type == pipeline_utils.TargetType.HUGO:
+                self.robot_builder.add_mjcf(
+                    hugo_assets.resolve_hugo_mjcf_path(retargeter_config.get("robot_mjcf")))
             else:
                 self.robot_builder.add_mjcf(
                     ai_sapiens_assets.resolve_ai_sapiens_mjcf_path(retargeter_config.get("robot_mjcf")))
+
+            self._apply_initial_joint_q(retargeter_config.get("initial_joint_q"))
 
             self.human_robot_scaler = HumanToRobotScaler(
                 skeleton, retargeter_config['model_height'], io_utils.get_config_file(retargeter_config['human_robot_scaler_config']))
@@ -9457,6 +9464,25 @@ class NewtonPipeline:
             })
 
         return trace, summary
+
+    def _apply_initial_joint_q(self, initial_joint_q: dict | None):
+        """Seed the IK from a named joint configuration instead of all-zeros.
+
+        ``initial_joint_q`` maps joint name -> radians. Without it the solver
+        starts at qpos=0, which is fine for robots whose zero pose resembles the
+        SOMA initialization pose, but not for one (Hugo) whose zero pose puts
+        the elbow axis sideways: reaching the reference then needs a 90 deg
+        shoulder-yaw swing that ends exactly at the joint limit, and the solver
+        can fall into a mirrored branch and stay there for the whole clip.
+        """
+        if not initial_joint_q:
+            return
+        names = [newton_utils.get_name_from_label(label) for label in self.robot_builder.joint_label]
+        for joint_name, value in initial_joint_q.items():
+            if joint_name not in names:
+                raise ValueError(f"[ERROR]: initial_joint_q names unknown joint [{joint_name}].")
+            start = self.robot_builder.joint_q_start[names.index(joint_name)]
+            self.robot_builder.joint_q[start] = float(value)
 
     def _build_target_mapping(self, model, skeleton, retargeter_config):
         mapped_joints = []
